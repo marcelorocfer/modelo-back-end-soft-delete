@@ -10,6 +10,7 @@ import { AtualizaUsuarioDto } from './dto/atualiza-usuario.dto';
 import { CriaUsuarioDto } from './dto/cria-usuario.dto';
 import * as bcrypt from 'bcrypt';
 import { UsersRepository } from './usuarios.repository';
+import { Usuario } from '@prisma/client';
 
 @Injectable()
 export class UsuariosService {
@@ -17,19 +18,31 @@ export class UsuariosService {
     private readonly prismaService: PrismaService,
     private readonly paginateService: PaginateService,
     private readonly usersRepository: UsersRepository
-  ) {}
+  ) { }
 
-  async cria(data: CriaUsuarioDto): Promise<any> {
+  async cria(data: CriaUsuarioDto): Promise<Usuario> {
     data.senha = await this.hashDado(data.senha);
 
     await this._emailExiste(data);
     await this._usuarioExiste(data);
 
-    const usuario = this.prismaService.usuario.create({
-      data,
-    });
+    try {
+      const usuario = await this.prismaService.usuario.create({
+        data,
+      });
 
-    return usuario;
+      return usuario;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+
+      if ((error as any)?.code === 'P2002') {
+        throw new ConflictException('E-mail ou login já cadastrado.');
+      }
+
+      throw new InternalServerErrorException(
+        `Erro ao listar usuários. ${errorMessage}`,
+      );
+    }
   }
 
   async buscaTodos(

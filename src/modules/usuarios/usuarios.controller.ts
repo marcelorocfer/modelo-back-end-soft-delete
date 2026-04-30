@@ -47,10 +47,10 @@ export class UsuariosController {
     );
   }
 
-  @Get('/usuarios-incluindo-deletados-com-soft-delete')
+  @Get('/todos-incluindo-deletados')
   @UseGuards(AuthGuard())
   @ApiSearchOperation({
-    summary: 'Busca usuários com soft delete',
+    summary: 'Busca todos os usuários incluindo os deletados',
     description:
       'Faz uma busca que retorna um array de usuários com soft delete com base nos parâmetros de filtro utilizados...',
   })
@@ -58,10 +58,10 @@ export class UsuariosController {
     return this.usuarioService.getAllIncludingDeleted();
   }
 
-  @Get('/apenas-deletados-com-soft-delete')
+  @Get('/apenas-deletados')
   @UseGuards(AuthGuard())
   @ApiSearchOperation({
-    summary: 'Busca apenas usuários com soft delete',
+    summary: 'Busca apenas usuários deletados',
     description:
       'Faz uma busca que retorna um array com apenas usuários com soft delete com base nos parâmetros de filtro utilizados...',
   })
